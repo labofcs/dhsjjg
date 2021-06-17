@@ -1,0 +1,61 @@
+make build 符合预期，生成了.depend bin和obj目录及目录内对文件。
+
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ make build 
+gcc -Wall -std=gnu99 -Iinc -c src/sq_list.c -o obj/sq_list.o
+gcc -Wall -std=gnu99 -Iinc -c src/t_sq_list.c -o obj/t_sq_list.o
+gcc -Wall -std=gnu99 obj/sq_list.o obj/t_sq_list.o -o bin/t_sq_list
+
+目录结构如下
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ ll
+total 32
+drwxrwxr-x 6 zane zane 4096 6月  17 20:37 ./
+drwxrwxr-x 3 zane zane 4096 6月  17 19:00 ../
+drwxrwxr-x 2 zane zane 4096 6月  17 20:37 bin/
+-rw-rw-r-- 1 zane zane   90 6月  17 20:37 .depend
+drwxrwxr-x 2 zane zane 4096 6月  17 13:24 inc/
+-rw-rw-r-- 1 zane zane  461 6月  17 20:32 Makefile
+drwxrwxr-x 2 zane zane 4096 6月  17 20:37 obj/
+drwxrwxr-x 2 zane zane 4096 6月  17 19:35 src/
+=============================================================
+
+之后执行一次make clean 也符合预期，删除了对应的文件。(实际上也先调用了sinclude .depend 这里依赖无变更，文件不变)
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ make clean
+rm .depend
+rm -rf obj
+rm -rf bin
+===============================================================
+
+如果在这之后再执行一次make clean，则会先调用.depend,再删除生成的文件，虽然结果没问题，但不符合预期。
+
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ make clean 
+gcc -MM -Iinc src/sq_list.c src/t_sq_list.c > .depend
+sed -i '/.o:/ s,^,obj/,' .depend
+rm .depend
+rm -rf obj
+rm -rf bin
+
+=================================================================
+make rebuild 则不符合预期; 内部执行make clean的时候，调用了sinclude .depend，但是之后又删除了生成的.depend文件。然后再调用make build
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ make rebuild 
+gcc -MM -Iinc src/sq_list.c src/t_sq_list.c > .depend
+sed -i '/.o:/ s,^,obj/,' .depend
+rm .depend
+rm -rf obj
+rm -rf bin
+gcc -Wall -std=gnu99 -Iinc -c src/sq_list.c -o obj/sq_list.o
+gcc -Wall -std=gnu99 -Iinc -c src/t_sq_list.c -o obj/t_sq_list.o
+gcc -Wall -std=gnu99 obj/sq_list.o obj/t_sq_list.o -o bin/t_sq_list
+
+生成的目录如下: (缺少.depend)
+zane@pc:~/Desktop/dhsjjg/mycode/chapter_three$ ll
+total 28
+drwxrwxr-x 6 zane zane 4096 6月  17 20:45 ./
+drwxrwxr-x 3 zane zane 4096 6月  17 19:00 ../
+drwxrwxr-x 2 zane zane 4096 6月  17 20:45 bin/
+drwxrwxr-x 2 zane zane 4096 6月  17 13:24 inc/
+-rw-rw-r-- 1 zane zane  461 6月  17 20:32 Makefile
+drwxrwxr-x 2 zane zane 4096 6月  17 20:45 obj/
+drwxrwxr-x 2 zane zane 4096 6月  17 19:35 src/
+
+==============
+主要问题这sinclude .depend 应该放哪里调用合适，才会符合预期，此外为甚make rebuild 在调用make build 过程中不会再走一次.depend
