@@ -54,7 +54,7 @@ int list_length(const sq_list *list)
 /* 操作结果：用e返回L中第i个数据元素的值,注意i是指位置，第1个位置的数组是从0开始 */
 status get_elem(const sq_list *list, int counter, elem_type *e)
 {
-    if (list->length == 0 || counter < 1 || counter > list->length){
+    if (list->length == 0 || counter < 1 || counter > list->length) {
         return ERROR;
     } else {
         *e = list->data[counter - 1];

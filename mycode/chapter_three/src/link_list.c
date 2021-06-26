@@ -70,5 +70,75 @@ int list_length(const link_list list)
 {
     int count;
 
-    
+    count = 0;
+    node *pnode = list->next;
+
+    while (pnode) {
+        count++;
+        pnode = pnode->next;
+    }
+
+    return count;
+}
+
+/* 初始条件：链式线性表L已存在，1≤i≤ListLength(L) */
+/* 操作结果：用e返回L中第i个数据元素的值 */
+status get_elem(const link_list list, int counter, elem_type *e)
+{
+    int count = 1;
+    node *pnode = list->next;
+
+    while (pnode && count < counter) {
+        count++;
+        pnode = pnode->next;
+    }
+    if (!pnode || count > counter) {
+        return ERROR;
+    }
+    *e = pnode->data;
+    return OK;
+}
+
+/* 初始条件：链式线性表L已存在 */
+/* 操作结果：返回L中第1个与e满足关系的数据元素的位序。 */
+/* 若这样的数据元素不存在，则返回值为0 */
+int get_elem_index(const link_list list, const elem_type *e)
+{
+    int index = 0;
+    node *pnode = list->next;
+
+    while (pnode) {
+        index++;
+        if (pnode->data == *e) {
+            return index;
+        }
+        *pnode = *(pnode)->next;
+    }
+    return 0;
+}
+
+/* 初始条件：链式线性表L已存在,1≤i≤ListLength(L)， */
+/* 操作结果：在L中第i个位置之前插入新的数据元素e，L的长度加1 */
+status list_insert_elem(link_list *list, int index, elem_type e)
+{
+    int i;
+    node *pnode, *newnode;
+
+    pnode = (*list)->next;
+    i = 1;
+
+    while (pnode && (i < index)) {
+        pnode = pnode->next;
+        i++;
+    }
+    if (!p || i > index) {
+        return ERROR;
+    }
+    newnode = (node*)malloc(sizeof(node));
+
+    newnode->data = e;
+    newnode->next = pnode->next;
+    pnode->next = newnode;
+
+    return OK;
 }

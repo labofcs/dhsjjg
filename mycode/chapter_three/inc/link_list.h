@@ -58,9 +58,8 @@ status get_elem(const link_list list, int counter, elem_type *e);
 /* 若这样的数据元素不存在，则返回值为0 */
 int get_elem_index(const link_list list, const elem_type *e);
 
-/* 初始条件：顺序线性表L已存在,1≤i≤ListLength(L)， */
+/* 初始条件：链式线性表L已存在,1≤i≤ListLength(L)， */
 /* 操作结果：在L中第i个位置之前插入新的数据元素e，L的长度加1 */
-/* 即a = data[i-1], b =data[i] 变成 a = data[i-1] e = data[i], b = data[i+1]*/
 status list_insert_elem(link_list *list, int index, elem_type e);
 
 /* 初始条件：顺序线性表L已存在，1≤i≤ListLength(L) */
