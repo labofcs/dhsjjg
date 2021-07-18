@@ -74,4 +74,5 @@ void create_list_head(link_list *list, int n);
 
 /*  随机产生n个元素的值，建立带表头结点的单链线性表L（尾插法） */
 void create_list_tail(link_list *list, int n);
+
 #endif  /* link_list.h  */

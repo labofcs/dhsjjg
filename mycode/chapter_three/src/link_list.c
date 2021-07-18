@@ -47,7 +47,7 @@ status list_is_empty(const link_list list)
 }
 
 /* 初始条件：链式线性表L已存在。操作结果：将L重置为空表 */
-//TODO
+
 status clear_list(link_list *list)
 {
     node *pnode, *tmp;
@@ -131,7 +131,7 @@ status list_insert_elem(link_list *list, int index, elem_type e)
         pnode = pnode->next;
         i++;
     }
-    if (!p || i > index) {
+    if (!pnode || i > index) {
         return ERROR;
     }
     newnode = (node*)malloc(sizeof(node));
@@ -141,4 +141,71 @@ status list_insert_elem(link_list *list, int index, elem_type e)
     pnode->next = newnode;
 
     return OK;
+}
+
+/* 初始条件：顺序线性表L已存在，1≤i≤ListLength(L) */
+/* 操作结果：删除L的第i个数据元素，并用e返回其值，L的长度减1 */
+status list_delete_elem(link_list *list, int index, elem_type *e)
+{
+    int count;
+    node *pnode, *pre_node;
+
+    count = 1;
+    pnode = (*list)->next;
+    pre_node = pnode;
+
+    while (pnode && (count < index)) { //找到第i个数据元素
+        pre_node = pnode;
+        pnode = pnode->next;
+        ++count;
+    }
+
+    if (count >index || !(pnode)) {
+        return ERROR;
+    }
+
+    pre_node->next = pnode->next;
+    *e = pnode->data;
+    free(pnode);
+
+    return OK;
+}
+
+
+/*  随机产生n个元素的值，建立带表头结点的单链线性表L（头插法） */
+void create_list_head(link_list *list, int n)
+{
+    node *pnode;
+    int count;
+    srand(time(0));
+    *list = (link_list)malloc(sizeof(node));
+    (*list)->next = NULL;
+
+    for (count = 0; count < n; count++) {
+        pnode = (link_list)malloc(sizeof(link_list));
+        pnode->data = rand()%100+1;
+        pnode->next = (*list)->next;
+        (*list)->next = pnode;
+    }
+
+}
+
+/*  随机产生n个元素的值，建立带表头结点的单链线性表L（尾插法） */
+void create_list_tail(link_list *list, int n)
+{
+    node *pnode, *r;
+    int count;
+    srand(time(0));
+    *list = (link_list)malloc(sizeof(node));
+    (*list)->next = NULL;
+    r = *list;
+    for (count = 0; count < n; count++) {
+        pnode = (link_list)malloc(sizeof(link_list));
+        pnode->data = rand()%100+1;
+        r->next = pnode;
+        r = pnode;
+    }
+
+    r->next = NULL;
+
 }

@@ -4,8 +4,8 @@ int main()
 {
         
     sq_list L;
-	sq_list Lb;
-    
+    sq_list Lb;
+
     elem_type e;
     status i;
     int j,k;
