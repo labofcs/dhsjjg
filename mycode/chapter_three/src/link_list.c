@@ -3,7 +3,7 @@
 /* 打印元素 */
 status visit(elem_type e)
 {
-    printf("%d", e);
+    printf("%d ", e);
     return OK;
 }
 
@@ -105,15 +105,28 @@ status get_elem(const link_list list, int counter, elem_type *e)
 int get_elem_index(const link_list list, const elem_type *e)
 {
     int index = 0;
+
     node *pnode = list->next;
+    // link_list p = list->next;
 
     while (pnode) {
         index++;
         if (pnode->data == *e) {
             return index;
         }
-        *pnode = *(pnode)->next;
+        // *pnode = *(pnode)->next;
+        pnode = pnode->next;
+
     }
+
+    // while (p) {
+    //     index++;
+    //     if (p->data == *e) { /* 找到这样的数据元素 */
+    //             return index;
+    //     }
+    //     p = p->next;
+    // }
+
     return 0;
 }
 
@@ -124,7 +137,8 @@ status list_insert_elem(link_list *list, int index, elem_type e)
     int i;
     node *pnode, *newnode;
 
-    pnode = (*list)->next;
+    // pnode = (*list)->next;
+    pnode = (*list);
     i = 1;
 
     while (pnode && (i < index)) {

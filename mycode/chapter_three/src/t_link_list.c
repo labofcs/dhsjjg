@@ -43,7 +43,7 @@ int main()
             else
                     printf("没有值为%d的元素\n",j);
     }
-    
+
 
     k=list_length(L); /* k为表长 */
     for(j=k+1;j>=k;j--)
