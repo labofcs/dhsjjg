@@ -20,7 +20,6 @@
 typedef int status;             /* status是函数的类型,其值是函数结果状态代码，如OK等 */
 typedef int elem_type;          /* ElemType类型根据实际情况而定，这里假设为int */
 
-
 typedef struct node
 {
     elem_type data;
