@@ -1,35 +1,86 @@
+# 编译器和工具
 CC = gcc
-CFLAGS = -Wall -std=gnu99 -g
-INC = -Iinc
+RM = rm -rf
+ifeq ($(OS),Windows_NT)
+	MKDIR := mkdir
+else
+	MKDIR := mkdir -p
+endif
 
-.PHONY : build rebuild clean
+# 目录定义
+SRC_DIR = src
+INC_DIR = inc
+LIB_DIR = lib
+TEST_DIR = test
 
-build : bin/t_sq_list bin/t_link_list bin/t_static_link_list
+BUILD_DIR = build
+OBJ_DIR = $(BUILD_DIR)\obj
+BIN_DIR = $(BUILD_DIR)\bin
 
-bin/t_sq_list : obj/sq_list.o obj/t_sq_list.o
-	@ mkdir -p bin
-	$(CC) $(CFLAGS) $^ -o $@
+# 测试相关目录
+TEST_BUILD_DIR = $(BUILD_DIR)\test
+TEST_OBJ_DIR = $(TEST_BUILD_DIR)\obj
+TEST_BIN_DIR = $(TEST_BUILD_DIR)\bin
 
-bin/t_link_list : obj/link_list.o obj/t_link_list.o
-	@ mkdir -p bin
-	$(CC) $(CFLAGS) $^ -o $@
+# 文件集合
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+DEPS = $(OBJS:.o=.d) # 自动生成的依赖关系文件
 
-bin/t_static_link_list : obj/static_link_list.o obj/t_static_link_list.o
-	@ mkdir -p bin
-	$(CC) $(CFLAGS) $^ -o $@
+# 测试文件集合
+TEST_SRCS = $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJS = $(patsubst $(TEST_DIR)/%.c, $(TEST_OBJ_DIR)/%.o, $(TEST_SRCS))
+TEST_DEPS = $(TEST_OBJS:.o=.d)	# 自动生成的依赖关系文件
 
-.depend : src/sq_list.c src/t_sq_list.c src/link_list.c src/t_link_list.c src/static_link_list.c src/t_static_link_list.c
-	$(CC) -MM $(INC) $^ > $@
-	sed -i '/.o:/ s,^,obj/,' $@
-sinclude .depend
+# 可执行文件名称
+TARGET = sq_list_main
+EXECUTABLE = $(BIN_DIR)/$(TARGET)
 
-obj/%.o : src/%.c $(MAKEFILE_LIST)
-	@ mkdir -p obj
-	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+TEST_TARGET = test_sq_list_main
+TEST_EXECUTABLE = $(TEST_BIN_DIR)/$(TEST_TARGET)
 
-rebuild : clean build
+# 编译选项
+# CFLAGS = -Wall -Werror -pedantic -I$(INC_DIR)
+CFLAGS = -Wall -I$(INC_DIR)
+LDFLAGS = -L$(LIB_DIR)
+# LDFLAGS = -L$(LIB_DIR) -lthird_party
+# 测试编译选项
+TEST_LDFLAGS = $(LDFLAGS) -lCUnit
 
-clean : 
-	-rm .depend
-	-rm -rf obj
-	-rm -rf bin
+# 调试模式开关
+ifeq ($(DEBUG),1)
+CFLAGS += -g -O0
+else
+CFLAGS += -O2
+endif
+
+# 默认目标
+all: $(EXECUTABLE)
+
+# 包含自动生成的依赖关系
+-include $(DEPS)
+-include $(TEST_DEPS)
+
+# 链接目标文件生成可执行文件
+$(EXECUTABLE): $(OBJS) | $(BIN_DIR)
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+# 编译.c文件并生成依赖
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR) $(BUILD_DIR)
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+
+# 创建目录（order-only prerequisites）
+$(BUILD_DIR) $(OBJ_DIR) $(BIN_DIR) $(TEST_BUILD_DIR) $(TEST_OBJ_DIR) $(TEST_BIN_DIR):
+	$(MKDIR) $@
+
+# 测试目标（需要先编译主程序）
+test: $(TEST_EXECUTABLE)
+$(TEST_EXECUTABLE): $(TEST_OBJS) $(OBJS) | $(TEST_BIN_DIR)
+	$(CC) $^ -o $@ $(TEST_LDFLAGS)
+
+# 清理构建产物
+clean:
+	$(RM) $(BUILD_DIR)
+
+# 伪目标声明
+.PHONY: all clean test
